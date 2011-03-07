@@ -11,7 +11,7 @@ use Socket               qw(AF_UNIX SOCK_STREAM);
 use IO::Handle           qw();
 use namespace::autoclean;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 extends 'Catalyst::Restarter';
 
@@ -330,10 +330,6 @@ sub new {
 
     my $status  = Gtk2::Label->new;
 
-    my $bt_restart = Gtk2::Button->new('Restart');
-
-    my $bt_console = Gtk2::Button->new('Console');
-
     my $menu_bar = Gtk2::MenuBar->new;
     my $view = Gtk2::MenuItem->new('_View');
     my $mview = Gtk2::Menu->new;
@@ -463,6 +459,7 @@ You can also create a shell script and add a shortcut to panel. This avoids need
 
     #!/bin/bash
     cd /home/username/myapp/trunk/
+    export CATALYST_RESTARTER=CatalystX::Restarter::GTK
     perl script/myapp_server.pl -r 
 
 To use this restarter for specific application only, set appropirate envioronment variable. 
