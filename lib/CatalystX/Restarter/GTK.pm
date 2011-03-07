@@ -11,7 +11,7 @@ use Socket               qw(AF_UNIX SOCK_STREAM);
 use IO::Handle           qw();
 use namespace::autoclean;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 extends 'Catalyst::Restarter';
 
@@ -473,7 +473,7 @@ To use this restarter for specific application only, set appropirate envioronmen
 
 This module provides GUI interface for controlling Catalyst server and viewing console output generated. It captures both STDOUT and STDERR.
 
-It shows a very small GUI window on desktop. It is set always on to by default. You can drag window to any screen corner for convenience.
+It shows a very small GUI window on desktop. It is set always on top by default. You can drag window to any screen corner for convenience.
 
 The window displays server status. User can view console output and manually restart server from menu.
 
