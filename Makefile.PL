@@ -15,6 +15,7 @@ requires 'Try::Tiny';
 requires 'Object::Destroyer';
 requires 'AnyEvent';
 requires 'Gtk2';
+requires 'Glib';
 requires 'IPC::SysV';
 requires 'IO::Handle';
 

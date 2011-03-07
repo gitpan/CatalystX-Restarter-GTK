@@ -11,7 +11,7 @@ use Socket               qw(AF_UNIX SOCK_STREAM);
 use IO::Handle           qw();
 use namespace::autoclean;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 extends 'Catalyst::Restarter';
 
@@ -408,7 +408,12 @@ sub get_msg_window {
     my $textview = Gtk2::TextView->new_with_buffer($self->{msg_buffer});
     $textview->set_editable(FALSE);
     $textview->set_wrap_mode('word');
-
+	
+	my $text_desc = Pango::FontDescription->new;
+	$text_desc->set_family('Monospace');
+	
+	$textview->modify_font($text_desc);
+	
     my $scrolled_win = Gtk2::ScrolledWindow->new;
     $scrolled_win->add($textview);
 
