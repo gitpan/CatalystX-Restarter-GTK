@@ -22,7 +22,6 @@ requires:
   AnyEvent: 0
   Catalyst::Devel: 0
   Catalyst::Runtime: 5.80032
-  Glib: 0
   Gtk2: 0
   IO::Handle: 0
   IPC::SysV: 0
@@ -34,4 +33,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://dev.catalyst.perl.org/repos/Catalyst/CatalystX-Restarter-GTK/trunk
-version: 0.04
+version: 0.05

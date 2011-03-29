@@ -11,7 +11,7 @@ use Socket               qw(AF_UNIX SOCK_STREAM);
 use IO::Handle           qw();
 use namespace::autoclean;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 extends 'Catalyst::Restarter';
 
@@ -241,22 +241,16 @@ sub _fork_and_start {
         # Read console output from forked server and send to win proc
         $self->srv_reader(AnyEvent->io(
             fh      => $reader,
-
             poll    => 'r',
-
             cb      => sub {
-
                 if (my $bytes = sysread($reader, my $msg, 256, 0)) {
-
                     syswrite($self->parent_sock, $msg, $bytes);
                 }
             }
         ));
 
         $self->notify_win('starting');
-
         $sentry->dismiss;
-
         $sem->op(0, 1, 0);
     }
     else {
@@ -275,7 +269,6 @@ sub _fork_and_start {
             $self->start_sub->();
         }
         catch {
-
             STDERR->print($_);
             exit 1;
         };
@@ -287,13 +280,9 @@ sub _kill_child {
 
     if ($self->_child) {
         kill 'INT', $self->_child;
-
         waitpid($self->_child, 0);
-
         $self->_child(0);
-
         $self->notify_win('stopped');
-
     }
 }
 
@@ -310,11 +299,16 @@ use Gtk2;
 use Glib qw(TRUE FALSE);
 use Carp;
 
+my $path = __FILE__;
+$path =~ s/[^\/]+$//;
+
 my %status_msg = (
     starting    => { msg => 'Starting', color => Gtk2::Gdk::Color->new(0, 0, 0x55 * 257) },
     started     => { msg => 'Started',  color => Gtk2::Gdk::Color->new(0, 0x55 * 257, 0) },
     stopped     => { msg => 'Stopped',  color => Gtk2::Gdk::Color->new(0x55 * 257, 0, 0) },
 );
+
+$status_msg{$_}->{icon} = $path.$_.'.png' foreach (keys %status_msg);
 
 sub new {
     my ($class, $app_name) = @_;
@@ -363,13 +357,41 @@ sub new {
     $win->add($vbox);
 
     $win->signal_connect(delete_event => sub { Gtk2->main_quit; });
-
+    $win->signal_connect('window-state-event' => sub {        
+        if (shift(@{$_[1]->new_window_state}) eq 'iconified' && $obj->{trayicon}->is_embedded) {
+            $win->hide;
+        }
+    });
+    
     $win->show_all;
     my $buffer = Gtk2::TextBuffer->new;
-
-    $obj = { %$obj, win => $win, msg_buffer => $buffer, app_name => $app_name, lbstatus => $status,
-
-        bt_restart => $restart, bt_console => $console };
+    #-- Create tray icon and menu
+    my $trayicon = Gtk2::StatusIcon->new_from_file($status_msg{stopped}->{icon});
+    $trayicon->set_visible(TRUE);
+    
+    my $traymenu = Gtk2::Menu->new;
+    my $tray_mconsole = Gtk2::MenuItem->new('View Console');
+    $tray_mconsole->signal_connect('activate' => sub { $console->activate; });
+    
+    my $tray_mrestart = Gtk2::MenuItem->new('Restart');
+    $tray_mrestart->signal_connect('activate' => sub { $restart->activate; });
+        
+    my $mexit = Gtk2::MenuItem->new('Exit');
+    $mexit->signal_connect('activate' => sub { Gtk2->main_quit; });
+    
+    $traymenu->append($tray_mconsole);
+    $traymenu->append($tray_mrestart);
+    $traymenu->append(Gtk2::SeparatorMenuItem->new);
+    $traymenu->append($mexit);
+    
+    $trayicon->signal_connect('popup-menu', sub {
+        my ($ticon, $button, $time) = @_;
+        my ($x, $y, $push) = Gtk2::StatusIcon::position_menu($traymenu, $ticon);
+        $traymenu->show_all;
+        $traymenu->popup(undef, undef, sub {($x, $y,$push)}, undef, $button, $time);
+    });
+    
+    $obj = { %$obj, win => $win, trayicon => $trayicon, msg_buffer => $buffer, app_name => $app_name, lbstatus => $status, bt_restart => $restart, bt_console => $console };
 
     bless $obj, $class;
 }
@@ -385,7 +407,8 @@ sub set_status {
     $self->{lbstatus}->modify_fg('normal', $msg->{color});
 
     $self->{win}->set_title($self->{app_name}.'-'.$msg->{msg});
-    $self->{bt_restart}->set_sensitive($st ne 'starting');
+    $self->{trayicon}->set_from_file($msg->{icon});
+    $self->{trayicon}->set_tooltip($self->{app_name}.' ('.$msg->{msg}.')');
 
 }
 
@@ -408,12 +431,12 @@ sub get_msg_window {
     my $textview = Gtk2::TextView->new_with_buffer($self->{msg_buffer});
     $textview->set_editable(FALSE);
     $textview->set_wrap_mode('word');
-	
-	my $text_desc = Pango::FontDescription->new;
-	$text_desc->set_family('Monospace');
-	
-	$textview->modify_font($text_desc);
-	
+
+    
+    my $text_desc = Pango::FontDescription->new;
+    $text_desc->set_family('Monospace');
+    $textview->modify_font($text_desc);
+
     my $scrolled_win = Gtk2::ScrolledWindow->new;
     $scrolled_win->add($textview);
 
@@ -475,9 +498,11 @@ To use this restarter for specific application only, set appropirate envioronmen
 
 This module provides GUI interface for controlling Catalyst server and viewing console output generated. It captures both STDOUT and STDERR.
 
-It shows a very small GUI window on desktop. It is set always on top by default. You can drag window to any screen corner for convenience.
+It provides tray icon in GNOME notification area and a GTK window on desktop. It is set always on top by default. You can drag window to any screen corner for convenience.
 
-The window displays server status. User can view console output and manually restart server from menu.
+Server can be controlled from window as well as tray icon. You can hide window by minimizing it. Tray icon changes according to server status.
+
+User can view console output and manually restart server from menu.
 
 Whenever any file of project is updated, developer can immediately check server status without switching to console.
 
@@ -488,6 +513,10 @@ This module extends Catalyst::Restarter and depends on its _watcher and _handle_
 =head1 AUTHOR
 
 Dhaval Dhanani L<mailto:dhaval070@gmail.com>
+
+=head1 CONTRIBUTOR
+
+Sapan Shah L<mailto:sapangshah@gmail.com>
 
 =head1 LICENCE
 
