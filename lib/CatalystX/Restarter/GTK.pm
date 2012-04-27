@@ -1,4 +1,5 @@
 package CatalystX::Restarter::GTK;
+use 5.8.0;
 use Moose;
 use MooseX::Types::Moose qw(Int Str);
 use Try::Tiny            qw(try catch);
@@ -11,7 +12,7 @@ use Socket               qw(AF_UNIX SOCK_STREAM);
 use IO::Handle           qw();
 use namespace::autoclean;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 extends 'Catalyst::Restarter';
 
@@ -60,9 +61,30 @@ has auto_restart => (
     default => 1
 );
 
+has server_watcher => (
+    is => 'rw'
+);
+
+sub start_server_watcher {
+    my $self = shift;
+    my $pid = shift;
+    
+    $self->_child($pid);
+    # Detect server process termination.
+    my $server_watcher = AnyEvent->child(
+        pid => $self->_child,
+        cb => sub {
+            $self->notify_win('stopped');
+            $self->_child(0);
+        }
+    );
+    $self->server_watcher($server_watcher);
+}
+
 sub run_and_watch {
     my ($self) = @_;
-
+   
+    
     my $sem = IPC::Semaphore->new(IPC_PRIVATE, 1, S_IRWXU | IPC_CREAT)
         or croak "Can not create semaphore $!";
 
@@ -80,18 +102,9 @@ sub run_and_watch {
         $parent_sock->autoflush(1);
 
         require AnyEvent;
-
+        
         $self->win_pid($pid);
         $self->parent_sock($parent_sock);
-
-        # Detect server process termination.
-        my $child_server = AnyEvent->child(
-            pid => $self->_child,
-            cb => sub {
-                $self->notify_win('stopped');
-                $self->_child(0);
-            }
-        );
 
         # Detect window process termination
         my $child_win = AnyEvent->child(
@@ -236,8 +249,8 @@ sub _fork_and_start {
     if($pid) {
         close $writer;
 
-        $self->_child($pid);
-
+        $self->start_server_watcher($pid);
+        
         # Read console output from forked server and send to win proc
         $self->srv_reader(AnyEvent->io(
             fh      => $reader,
@@ -248,7 +261,7 @@ sub _fork_and_start {
                 }
             }
         ));
-
+        
         $self->notify_win('starting');
         $sentry->dismiss;
         $sem->op(0, 1, 0);

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Test::More;
 use_ok 'CatalystX::Restarter::GTK';
-use_ok 'Catalyst', '5.80032';
+use_ok 'Catalyst', '5.90006';
 use_ok 'MooseX::Types::Moose';
 use_ok 'Try::Tiny';
 use_ok 'POSIX';
@@ -31,7 +31,7 @@ use Socket               qw(AF_UNIX SOCK_STREAM);
 
 ok(socketpair(my $parent, my $child, AF_UNIX, SOCK_STREAM, 0));
 
-my $restarter = Catalyst::Restarter->new(start_sub => sub {}, argv => []);
+my $restarter = CatalystX::Restarter::GTK->new(start_sub => sub {}, argv => []);
 can_ok($restarter->_watcher, 'new_events');
 
 $restarter = undef;
