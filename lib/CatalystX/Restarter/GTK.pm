@@ -12,7 +12,7 @@ use Socket               qw(AF_UNIX SOCK_STREAM);
 use IO::Handle           qw();
 use namespace::autoclean;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 extends 'Catalyst::Restarter';
 
@@ -503,7 +503,7 @@ You can also create a shell script and add a shortcut to panel. This avoids need
     export CATALYST_RESTARTER=CatalystX::Restarter::GTK
     perl script/myapp_server.pl -r 
 
-To use this restarter for specific application only, set appropirate envioronment variable. 
+To use this restarter for specific application only, set appropriate envioronment variable. 
 
     MYAPP_RESTARTER=CatalystX::Restarter::GTK
  
