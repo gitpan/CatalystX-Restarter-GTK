@@ -9,13 +9,12 @@ requires 'Moose';
 requires 'MooseX::Types';
 requires 'namespace::autoclean';
 
-requires 'Catalyst::Runtime' => '5.90006';
+requires 'Catalyst::Runtime' => '5.80032';
 requires 'Catalyst::Devel';
 requires 'Try::Tiny';
 requires 'Object::Destroyer';
 requires 'AnyEvent';
 requires 'Gtk2';
-requires 'Glib';
 requires 'IPC::SysV';
 requires 'IO::Handle';
 

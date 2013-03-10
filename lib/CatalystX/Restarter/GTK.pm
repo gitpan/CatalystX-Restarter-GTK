@@ -1,5 +1,5 @@
 package CatalystX::Restarter::GTK;
-use 5.8.0;
+use v5.008;
 use Moose;
 use MooseX::Types::Moose qw(Int Str);
 use Try::Tiny            qw(try catch);
@@ -12,7 +12,7 @@ use Socket               qw(AF_UNIX SOCK_STREAM);
 use IO::Handle           qw();
 use namespace::autoclean;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 extends 'Catalyst::Restarter';
 
@@ -503,7 +503,7 @@ You can also create a shell script and add a shortcut to panel. This avoids need
     export CATALYST_RESTARTER=CatalystX::Restarter::GTK
     perl script/myapp_server.pl -r 
 
-To use this restarter for specific application only, set appropriate envioronment variable. 
+To use this restarter for specific application only, set appropirate envioronment variable. 
 
     MYAPP_RESTARTER=CatalystX::Restarter::GTK
  
@@ -525,11 +525,7 @@ This module extends Catalyst::Restarter and depends on its _watcher and _handle_
 
 =head1 AUTHOR
 
-Dhaval Dhanani L<mailto:dhaval070@gmail.com>
-
-=head1 CONTRIBUTOR
-
-Sapan Shah L<mailto:sapangshah@gmail.com>
+Dhaval Dhanani L<mailto:dhaval@cpan.org>
 
 =head1 LICENCE
 

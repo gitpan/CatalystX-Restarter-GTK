@@ -3,12 +3,12 @@ abstract: 'GTK based Catalyst server restarter.'
 author:
   - 'Dhaval Dhanani L<mailto:dhaval070@gmail.com>'
 build_requires:
-  ExtUtils::MakeMaker: 6.42
+  ExtUtils::MakeMaker: 6.59
   Test::More: 0.88
 configure_requires:
-  ExtUtils::MakeMaker: 6.42
+  ExtUtils::MakeMaker: 6.59
 dynamic_config: 0
-generated_by: 'Module::Install version 1.02, CPAN::Meta::Converter version 2.112621'
+generated_by: 'Module::Install version 1.06, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -21,8 +21,7 @@ no_index:
 requires:
   AnyEvent: 0
   Catalyst::Devel: 0
-  Catalyst::Runtime: 5.90006
-  Glib: 0
+  Catalyst::Runtime: 5.80032
   Gtk2: 0
   IO::Handle: 0
   IPC::SysV: 0
@@ -35,4 +34,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://dev.catalyst.perl.org/repos/Catalyst/CatalystX-Restarter-GTK/trunk
-version: 0.07
+version: 0.06
